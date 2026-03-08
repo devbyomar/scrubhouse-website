@@ -153,6 +153,27 @@ export function contactNotificationEmail(data: {
   };
 }
 
+export function contactConfirmationEmail(data: {
+  firstName: string;
+  email: string;
+  submissionId: string;
+}) {
+  return {
+    to: data.email,
+    subject: `We received your message — ScrubHouse`,
+    html: emailWrapper(`
+      <h2>Hi ${data.firstName}, thanks for reaching out! 👋</h2>
+      <p>We've received your message and a member of our team will get back to you within 24 hours.</p>
+
+      <p>If your request is urgent, feel free to call us directly at <strong>(416) 903-9982</strong>.</p>
+
+      <a href="https://scrubhouse.ca/quote" class="cta">Get an Instant Quote</a>
+
+      <p style="font-size:13px;color:#94A3B8;margin-top:24px;">Reference: #${data.submissionId}</p>
+    `),
+  };
+}
+
 // ─── Quote Emails ─────────────────────────────────────
 
 export function quoteNotificationEmail(data: {

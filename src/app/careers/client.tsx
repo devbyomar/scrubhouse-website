@@ -35,6 +35,7 @@ export function CareersPageClient() {
   const [step, setStep] = useState<"info" | "form" | "success">("info");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeError, setResumeError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<Record<string, unknown>>({
     fullName: "",
     email: "",
@@ -86,10 +87,50 @@ export function CareersPageClient() {
   };
 
   const handleSubmit = async () => {
-    // TODO: Send to API route with FormData for file upload
-    const sanitized = resumeFile ? sanitizeFilename(resumeFile.name) : "none";
-    console.log("Career application:", { ...formData, resumeFileName: sanitized });
-    setStep("success");
+    setIsSubmitting(true);
+    try {
+      const fullName = String(formData.fullName || "");
+      const nameParts = fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      const body = new FormData();
+      body.append("firstName", firstName);
+      body.append("lastName", lastName);
+      body.append("email", String(formData.email || ""));
+      body.append("phone", String(formData.phone || ""));
+      body.append("city", String(formData.city || ""));
+      body.append("employmentType", String(formData.cleaningType || ""));
+      body.append("experience", String(formData.yearsExperience || ""));
+      body.append("availability", Array.isArray(formData.availability) ? (formData.availability as string[]).join(", ") : "");
+      body.append("hasTransportation", formData.hasVehicle ? "yes" : "no");
+      body.append("whyInterested", String(formData.whyWork || ""));
+      body.append("website", ""); // honeypot
+      if (resumeFile) {
+        body.append("resume", resumeFile);
+      }
+
+      const response = await fetch("/api/careers", {
+        method: "POST",
+        body,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Career submission failed:", result);
+        alert("Something went wrong. Please try again or contact us directly.");
+        return;
+      }
+
+      console.log("Career application submitted:", result);
+      setStep("success");
+    } catch (error) {
+      console.error("Career submission error:", error);
+      alert("Something went wrong. Please try again or contact us directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (step === "success") {
@@ -366,8 +407,8 @@ export function CareersPageClient() {
                   <Button variant="ghost" onClick={() => setStep("info")} className="sm:flex-1">
                     Back
                   </Button>
-                  <Button variant="cyan" size="lg" onClick={handleSubmit} className="sm:flex-2">
-                    Submit Application <ArrowRight className="h-4 w-4" />
+                  <Button variant="cyan" size="lg" onClick={handleSubmit} disabled={isSubmitting || !formData.legallyEligible || !formData.canPerformPhysicalWork || !formData.confirmAccuracy || !formData.consentContact} className="sm:flex-2">
+                    {isSubmitting ? "Submitting..." : "Submit Application"} {!isSubmitting && <ArrowRight className="h-4 w-4" />}
                   </Button>
                 </div>
                 <p className="text-xs text-text-muted mt-4 text-center">

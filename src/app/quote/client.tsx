@@ -110,9 +110,11 @@ export function QuotePageClient() {
     email: "",
     phone: "",
     notes: "",
+    consent: false,
   });
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (key: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -164,9 +166,33 @@ export function QuotePageClient() {
   };
 
   const handleSubmit = async () => {
-    // TODO: Send data to API route / email service
-    console.log("Quote submission:", { ...formData, quote: quoteResult });
-    setSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          company: "", // honeypot field
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Quote submission failed:", result);
+        alert("Something went wrong. Please try again or contact us directly.");
+        return;
+      }
+
+      console.log("Quote submitted successfully:", result);
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Quote submission error:", error);
+      alert("Something went wrong. Please try again or contact us directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -273,6 +299,8 @@ export function QuotePageClient() {
                   formData={formData}
                   onBack={prevStep}
                   onSubmit={handleSubmit}
+                  onUpdateField={updateField}
+                  isSubmitting={isSubmitting}
                 />
               ) : (
                 <motion.div
@@ -676,11 +704,15 @@ function QuoteResultView({
   formData,
   onBack,
   onSubmit,
+  onUpdateField,
+  isSubmitting,
 }: {
   result: QuoteResult;
   formData: Record<string, unknown>;
   onBack: () => void;
   onSubmit: () => void;
+  onUpdateField: (key: string, value: unknown) => void;
+  isSubmitting: boolean;
 }) {
   return (
     <motion.div
@@ -757,14 +789,28 @@ function QuoteResultView({
         </CardContent>
       </Card>
 
+      {/* Consent */}
+      <div className="flex items-start gap-3 mb-6">
+        <input
+          type="checkbox"
+          id="quote-consent"
+          checked={formData.consent as boolean}
+          onChange={(e) => onUpdateField("consent", e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-border text-cyan focus:ring-cyan"
+        />
+        <label htmlFor="quote-consent" className="text-xs text-text-muted leading-relaxed">
+          I consent to ScrubHouse collecting and using my information to respond to my quote request.
+        </label>
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-4">
         <Button variant="ghost" onClick={onBack} className="flex-1">
           <ArrowLeft className="h-4 w-4" />
           Adjust Details
         </Button>
-        <Button variant="cyan" size="lg" onClick={onSubmit} className="flex-2">
-          Submit Quote Request
-          <ArrowRight className="h-4 w-4" />
+        <Button variant="cyan" size="lg" onClick={onSubmit} disabled={isSubmitting || !(formData.consent as boolean)} className="flex-2">
+          {isSubmitting ? "Submitting..." : "Submit Quote Request"}
+          {!isSubmitting && <ArrowRight className="h-4 w-4" />}
         </Button>
       </div>
     </motion.div>

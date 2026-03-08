@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { contactFormSchema } from "@/lib/validations";
 import { generateSubmissionId } from "@/lib/utils";
-import { sendEmail, contactNotificationEmail } from "@/lib/email";
+import { sendEmail, contactNotificationEmail, contactConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -25,18 +25,27 @@ export async function POST(request: Request) {
     const data = result.data;
     const submissionId = generateSubmissionId();
 
-    // Send notification email to ScrubHouse team
+    // Send emails (notification to team + confirmation to customer)
     try {
-      await sendEmail(
-        contactNotificationEmail({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          phone: data.phone || undefined,
-          message: data.message,
-          submissionId,
-        })
-      );
+      await Promise.all([
+        sendEmail(
+          contactNotificationEmail({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone || undefined,
+            message: data.message,
+            submissionId,
+          })
+        ),
+        sendEmail(
+          contactConfirmationEmail({
+            firstName: data.firstName,
+            email: data.email,
+            submissionId,
+          })
+        ),
+      ]);
     } catch (emailError) {
       // Log email failure but don't fail the submission
       console.error("[Contact Form] Email notification failed:", emailError);
