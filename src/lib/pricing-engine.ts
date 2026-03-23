@@ -57,14 +57,33 @@ export const BASE_TIME_ESTIMATES: Record<string, number> = {
   airbnb: 2.5,
 };
 
-/** Additional time per bedroom (hours) */
+/** Additional time per bedroom (hours) — residential */
 export const TIME_PER_BEDROOM = 0.4;
 
-/** Additional time per bathroom (hours) */
+/** Additional time per bathroom (hours) — residential */
 export const TIME_PER_BATHROOM = 0.5;
 
 /** Additional time per extra floor/level (hours) */
 export const TIME_PER_FLOOR = 0.5;
+
+// ============================================
+// COMMERCIAL TIME ESTIMATION
+// ============================================
+
+/** Time per 500 sq ft of commercial space (hours) */
+export const TIME_PER_500_SQFT = 0.5;
+
+/** Additional time per office/private room (hours) */
+export const TIME_PER_OFFICE = 0.3;
+
+/** Additional time per commercial washroom (hours) */
+export const TIME_PER_WASHROOM = 0.5;
+
+/** Additional time per common area — boardroom, reception, kitchen, open workspace, etc. (hours) */
+export const TIME_PER_COMMON_AREA = 0.4;
+
+/** Additional time if space has stairs (hours) */
+export const TIME_FOR_STAIRS = 0.3;
 
 // ============================================
 // SERVICE TYPE MULTIPLIERS
@@ -127,6 +146,20 @@ export const ADD_ONS: AddOnItem[] = [
   { id: "post-renovation", label: "Post-Renovation Heavy Duty", price: 150, estimatedTime: 2.0 },
   { id: "organizing", label: "Light Organization", price: 40, estimatedTime: 0.5 },
   { id: "cabinet-interior", label: "Inside Cabinets", price: 50, estimatedTime: 0.75 },
+];
+
+/** Add-ons specific to commercial/office spaces */
+export const COMMERCIAL_ADD_ONS: AddOnItem[] = [
+  { id: "desk-sanitization", label: "Desk & Workstation Sanitization", price: 60, estimatedTime: 0.75 },
+  { id: "interior-windows", label: "Interior Window & Glass Cleaning", price: 50, estimatedTime: 0.75 },
+  { id: "carpet-spot-clean", label: "Carpet Spot Cleaning & Deodorizing", price: 75, estimatedTime: 1.0 },
+  { id: "kitchen-deep", label: "Kitchen / Breakroom Deep Clean", price: 55, estimatedTime: 0.75 },
+  { id: "floor-wax-buff", label: "Floor Waxing & Buffing", price: 100, estimatedTime: 1.5 },
+  { id: "high-touch-sanitize", label: "High-Touch Surface Sanitization", price: 40, estimatedTime: 0.5 },
+  { id: "restroom-restock", label: "Restroom Consumable Restocking", price: 35, estimatedTime: 0.3 },
+  { id: "post-construction", label: "Post-Construction Heavy Duty", price: 200, estimatedTime: 2.5 },
+  { id: "trash-recycling", label: "Trash & Recycling Removal", price: 30, estimatedTime: 0.3 },
+  { id: "furniture-moving", label: "Move & Clean Around Furniture", price: 50, estimatedTime: 0.5 },
 ];
 
 // ============================================
@@ -308,9 +341,17 @@ export const COMMERCIAL_PACKAGES: PackageDefinition[] = [
 
 export interface QuoteInput {
   propertyType: string;
+  // Residential fields
   bedrooms: number;
   bathrooms: number;
   floors: number;
+  // Commercial fields
+  squareFootage?: number;
+  offices?: number;
+  washrooms?: number;
+  commonAreas?: string[];
+  hasStairs?: boolean;
+  // Shared fields
   serviceType: string;
   frequency: string;
   condition: string;
@@ -349,13 +390,29 @@ export interface QuoteBreakdownItem {
 }
 
 export function calculateQuote(input: QuoteInput): QuoteResult {
+  const isCommercial = input.propertyType === "office" || input.propertyType === "commercial";
+
   // 1. Calculate base estimated hours
   const baseTime = BASE_TIME_ESTIMATES[input.propertyType] || 2.5;
-  const bedroomTime = input.bedrooms * TIME_PER_BEDROOM;
-  const bathroomTime = input.bathrooms * TIME_PER_BATHROOM;
-  const floorTime = Math.max(0, input.floors - 1) * TIME_PER_FLOOR;
+  let estimatedHours: number;
 
-  let estimatedHours = baseTime + bedroomTime + bathroomTime + floorTime;
+  if (isCommercial) {
+    // Commercial: based on sq footage, offices, washrooms, common areas
+    const sqftTime = Math.max(0, ((input.squareFootage || 1000) / 500)) * TIME_PER_500_SQFT;
+    const officeTime = (input.offices || 0) * TIME_PER_OFFICE;
+    const washroomTime = (input.washrooms || 1) * TIME_PER_WASHROOM;
+    const commonAreaTime = (input.commonAreas?.length || 0) * TIME_PER_COMMON_AREA;
+    const stairsTime = input.hasStairs ? TIME_FOR_STAIRS : 0;
+
+    estimatedHours = baseTime + sqftTime + officeTime + washroomTime + commonAreaTime + stairsTime;
+  } else {
+    // Residential: based on bedrooms, bathrooms, floors
+    const bedroomTime = input.bedrooms * TIME_PER_BEDROOM;
+    const bathroomTime = input.bathrooms * TIME_PER_BATHROOM;
+    const floorTime = Math.max(0, input.floors - 1) * TIME_PER_FLOOR;
+
+    estimatedHours = baseTime + bedroomTime + bathroomTime + floorTime;
+  }
 
   // 2. Apply service type multiplier
   const serviceMultiplier = SERVICE_TYPE_MULTIPLIERS[input.serviceType] || 1.0;
@@ -393,7 +450,8 @@ export function calculateQuote(input: QuoteInput): QuoteResult {
   let subtotal = laborCost + suppliesCost + ecoSurcharge;
 
   // 8. Add-on costs
-  const selectedAddOns = ADD_ONS.filter((a) => input.addOns.includes(a.id));
+  const addOnList = isCommercial ? COMMERCIAL_ADD_ONS : ADD_ONS;
+  const selectedAddOns = addOnList.filter((a) => input.addOns.includes(a.id));
   const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0);
 
   // 9. Travel fee

@@ -48,9 +48,16 @@ export const quoteFormSchema = z.object({
     ["condo", "apartment", "house", "townhouse", "office", "commercial", "airbnb"],
     { error: "Please select a property type" }
   ),
+  // Residential fields
   bedrooms: z.number().min(0).max(10),
   bathrooms: z.number().min(1).max(10),
   floors: z.number().min(1).max(5),
+  // Commercial fields
+  squareFootage: z.number().min(0).max(100000).optional(),
+  offices: z.number().min(0).max(100).optional(),
+  washrooms: z.number().min(0).max(20).optional(),
+  commonAreas: z.array(z.string()).optional(),
+  hasStairs: z.boolean().optional(),
 
   // Step 2: Service
   serviceType: z.enum(
