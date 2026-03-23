@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import {
+  JsonLd,
+  generateWebSiteSchema,
+  generateOrganizationSchema,
+} from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -72,8 +77,25 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   metadataBase: new URL("https://scrubhouse.ca"),
+  alternates: {
+    canonical: "/",
+  },
+  manifest: "/manifest.json",
+  verification: {
+    // TODO: Add real verification tokens after registering with each service
+    // google: "your-google-verification-token",
+    // yandex: "your-yandex-verification-token",
+  },
+  category: "cleaning services",
 };
 
 export default function RootLayout({
@@ -84,6 +106,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        {/* WebSite schema — enables sitelinks search box */}
+        <JsonLd data={generateWebSiteSchema()} />
+        {/* Organization schema — brand knowledge panel */}
+        <JsonLd data={generateOrganizationSchema()} />
         {/* Local Business Structured Data */}
         <script
           type="application/ld+json"

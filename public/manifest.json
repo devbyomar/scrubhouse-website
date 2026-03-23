@@ -1,0 +1,21 @@
+{
+  "name": "ScrubHouse Cleaning",
+  "short_name": "ScrubHouse",
+  "description": "Premium professional cleaning services for homes and businesses across the Greater Toronto Area.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFBFE",
+  "theme_color": "#1B2E6E",
+  "icons": [
+    {
+      "src": "/logo-icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
