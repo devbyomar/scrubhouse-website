@@ -23,10 +23,10 @@
 export const BASE_HOURLY_RATE = 55;
 
 /** Average cleaner hourly wage (CAD/hour) */
-export const CLEANER_HOURLY_PAY = 22;
+export const CLEANER_HOURLY_PAY = 20;
 
 /** Employer burden as a percentage (CPP, EI, WSIB, benefits, etc.) */
-export const EMPLOYER_BURDEN_PERCENT = 0.18;
+export const EMPLOYER_BURDEN_PERCENT = 0;
 
 /** Effective cost per cleaner per hour including burden */
 export const EFFECTIVE_CLEANER_COST =
