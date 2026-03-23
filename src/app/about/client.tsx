@@ -24,7 +24,7 @@ const VALUES = [
   {
     icon: Shield,
     title: "Trust & Transparency",
-    desc: "We provide clear upfront pricing, honest communication, and never cut corners. Every team member is vetted, insured, and held to the highest standards.",
+    desc: "We provide clear upfront pricing, honest communication, and never cut corners. Every team member is vetted and held to the highest standards.",
   },
   {
     icon: Heart,
@@ -61,7 +61,7 @@ const MILESTONES = [
 ];
 
 const COMMITMENTS = [
-  "Fully insured and bonded operations",
+  "Carefully selected and trained team members",
   "Thoroughly vetted and trained cleaning professionals",
   "Eco-friendly product options on every service",
   "Flexible scheduling — evenings and weekends available",

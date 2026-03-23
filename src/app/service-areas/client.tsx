@@ -196,7 +196,7 @@ export function ServiceAreasPageClient() {
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
                 {[
-                  "Vetted, insured professionals",
+                  "Trained, trusted professionals",
                   "Consistent quality checklists",
                   "Eco-friendly product options",
                   "Flexible day & evening slots",
