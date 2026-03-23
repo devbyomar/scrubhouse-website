@@ -177,31 +177,36 @@ export function QuotePageClient() {
       case 4:
         return !!formData.area && !!formData.postalCode;
       case 5:
-        return !!(formData.name as string)?.length && !!(formData.email as string)?.length && !!(formData.phone as string)?.length;
+        return (
+          !!(formData.name as string)?.length &&
+          !!(formData.email as string)?.length &&
+          !!(formData.phone as string)?.length &&
+          !!(formData.consent as boolean)
+        );
       default:
         return true;
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (step < 5) {
       setStep(step + 1);
     } else {
-      // Calculate quote
-      const result = calculateQuote(formData as QuoteInput);
-      setQuoteResult(result);
+      // Step 5: Submit the form first, then reveal the quote
+      await handleSubmitAndReveal();
     }
   };
 
   const prevStep = () => {
     if (quoteResult) {
       setQuoteResult(null);
+      setSubmitted(false);
     } else if (step > 1) {
       setStep(step - 1);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitAndReveal = async () => {
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/quote", {
@@ -222,6 +227,10 @@ export function QuotePageClient() {
       }
 
       console.log("Quote submitted successfully:", result);
+
+      // Calculate quote client-side and reveal it
+      const quoteCalc = calculateQuote(formData as QuoteInput);
+      setQuoteResult(quoteCalc);
       setSubmitted(true);
     } catch (error) {
       console.error("Quote submission error:", error);
@@ -230,36 +239,6 @@ export function QuotePageClient() {
       setIsSubmitting(false);
     }
   };
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen pt-32 pb-20">
-        <div className="container-custom">
-          <div className="max-w-2xl mx-auto text-center">
-            <FadeIn>
-              <div className="h-20 w-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="h-10 w-10 text-green-500" />
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-                Quote Request Submitted!
-              </h1>
-              <p className="text-lg text-text-muted mb-8">
-                Thank you for your interest in ScrubHouse. We&apos;ve received your quote request and our team will reach out within 24 hours to confirm your booking details.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="primary" size="lg" asChild>
-                  <Link href="/">Back to Home</Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link href="/contact">Contact Us</Link>
-                </Button>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -334,9 +313,6 @@ export function QuotePageClient() {
                   result={quoteResult}
                   formData={formData}
                   onBack={prevStep}
-                  onSubmit={handleSubmit}
-                  onUpdateField={updateField}
-                  isSubmitting={isSubmitting}
                 />
               ) : (
                 <motion.div
@@ -360,9 +336,9 @@ export function QuotePageClient() {
                     <div className="text-sm text-text-muted">
                       Step {step} of 5
                     </div>
-                    <Button variant="primary" onClick={nextStep} disabled={!canAdvance()}>
-                      {step === 5 ? "Calculate Quote" : "Continue"}
-                      <ArrowRight className="h-4 w-4" />
+                    <Button variant="primary" onClick={nextStep} disabled={!canAdvance() || isSubmitting}>
+                      {isSubmitting ? "Submitting..." : step === 5 ? "Get My Quote" : "Continue"}
+                      {!isSubmitting && <ArrowRight className="h-4 w-4" />}
                     </Button>
                   </div>
                 </motion.div>
@@ -750,7 +726,7 @@ function Step5Contact({ formData, updateField }: { formData: Record<string, unkn
   return (
     <div>
       <h2 className="text-2xl font-bold text-text-primary mb-2">Your Contact Details</h2>
-      <p className="text-text-muted mb-8">We&apos;ll use this to send you your quote and follow up on your request.</p>
+      <p className="text-text-muted mb-8">Enter your details below and we&apos;ll reveal your personalised quote instantly — plus email you a copy.</p>
 
       <div className="space-y-5">
         <div>
@@ -800,6 +776,20 @@ function Step5Contact({ formData, updateField }: { formData: Record<string, unkn
         </div>
       </div>
 
+      {/* Consent */}
+      <div className="flex items-start gap-3 mt-8 p-4 rounded-xl bg-surface-raised border border-border">
+        <input
+          type="checkbox"
+          id="quote-consent"
+          checked={formData.consent as boolean}
+          onChange={(e) => updateField("consent", e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-border text-cyan focus:ring-cyan"
+        />
+        <label htmlFor="quote-consent" className="text-sm text-text-secondary leading-relaxed">
+          I agree to receive my quote via email and consent to ScrubHouse collecting and using my information to respond to my request.
+        </label>
+      </div>
+
       {/* Honeypot - hidden from users */}
       <div className="absolute -left-[9999px]" aria-hidden="true">
         <input
@@ -823,16 +813,10 @@ function QuoteResultView({
   result,
   formData,
   onBack,
-  onSubmit,
-  onUpdateField,
-  isSubmitting,
 }: {
   result: QuoteResult;
   formData: Record<string, unknown>;
   onBack: () => void;
-  onSubmit: () => void;
-  onUpdateField: (key: string, value: unknown) => void;
-  isSubmitting: boolean;
 }) {
   return (
     <motion.div
@@ -841,11 +825,11 @@ function QuoteResultView({
       transition={{ duration: 0.5 }}
     >
       <div className="text-center mb-10">
-        <div className="h-16 w-16 rounded-full bg-cyan/10 flex items-center justify-center mx-auto mb-4">
-          <Zap className="h-8 w-8 text-cyan" />
+        <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 className="h-8 w-8 text-green-500" />
         </div>
         <h2 className="text-3xl font-bold text-text-primary mb-2">Your Estimated Quote</h2>
-        <p className="text-text-muted">Based on the details you provided</p>
+        <p className="text-text-muted">We&apos;ve also sent a copy to <span className="font-medium text-text-secondary">{formData.email as string}</span></p>
       </div>
 
       <Card className="border-2 border-cyan/20 shadow-xl mb-8">
@@ -909,28 +893,24 @@ function QuoteResultView({
         </CardContent>
       </Card>
 
-      {/* Consent */}
-      <div className="flex items-start gap-3 mb-6">
-        <input
-          type="checkbox"
-          id="quote-consent"
-          checked={formData.consent as boolean}
-          onChange={(e) => onUpdateField("consent", e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-border text-cyan focus:ring-cyan"
-        />
-        <label htmlFor="quote-consent" className="text-xs text-text-muted leading-relaxed">
-          I consent to ScrubHouse collecting and using my information to respond to my quote request.
-        </label>
+      {/* Next Steps */}
+      <div className="flex items-start gap-3 p-4 rounded-xl bg-cyan/5 border border-cyan/20 mb-8">
+        <Clock className="h-5 w-5 text-cyan flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-text-primary">What happens next?</p>
+          <p className="text-xs text-text-muted mt-1">
+            Our team will review your request and reach out within 24 hours to confirm your booking details and final pricing.
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Button variant="ghost" onClick={onBack} className="flex-1">
           <ArrowLeft className="h-4 w-4" />
-          Adjust Details
+          Adjust &amp; Recalculate
         </Button>
-        <Button variant="cyan" size="lg" onClick={onSubmit} disabled={isSubmitting || !(formData.consent as boolean)} className="flex-2">
-          {isSubmitting ? "Submitting..." : "Submit Quote Request"}
-          {!isSubmitting && <ArrowRight className="h-4 w-4" />}
+        <Button variant="primary" size="lg" asChild className="flex-2">
+          <Link href="/">Back to Home</Link>
         </Button>
       </div>
     </motion.div>
