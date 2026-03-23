@@ -117,12 +117,33 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
+              "@id": "https://scrubhouse.ca/#local-business",
               name: "ScrubHouse Cleaning",
               description:
                 "Premium professional cleaning services for homes and businesses across the Greater Toronto Area.",
               url: "https://scrubhouse.ca",
               telephone: "(416) 903-9982",
               email: "scrubhousecc@gmail.com",
+              image: "https://scrubhouse.ca/logo-full.jpg",
+              logo: "https://scrubhouse.ca/logo-full.jpg",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Mississauga",
+                addressRegion: "ON",
+                addressCountry: "CA",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: 43.589,
+                longitude: -79.6441,
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: 5.0,
+                reviewCount: 25,
+                bestRating: 5,
+                worstRating: 1,
+              },
               areaServed: [
                 { "@type": "City", name: "Mississauga" },
                 { "@type": "City", name: "Toronto" },
@@ -151,6 +172,13 @@ export default function RootLayout({
                 "Commercial Cleaning",
                 "Eco-Friendly Cleaning",
               ],
+              founder: {
+                "@type": "Person",
+                name: "ScrubHouse Cleaning",
+              },
+              foundingDate: "2023",
+              paymentAccepted: "Cash, Credit Card, Debit Card, E-Transfer",
+              currenciesAccepted: "CAD",
             }),
           }}
         />

@@ -25,7 +25,7 @@ export function Footer() {
                 <span className="text-xl font-bold tracking-tight leading-none text-white">
                   SCRUB<span className="text-cyan">HOUSE</span>
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.25em] leading-none text-white/50">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.25em] leading-none text-white/60">
                   Cleaning
                 </span>
               </div>
@@ -117,14 +117,14 @@ export function Footer() {
             </Link>
 
             <div className="mt-8 pt-6 border-t border-white/10">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-white/40 mb-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white/70 mb-3">
                 Legal
               </h4>
               <ul className="space-y-2">
                 <li>
                   <Link
                     href="/privacy"
-                    className="text-xs text-white/40 hover:text-cyan transition-colors"
+                    className="text-xs text-white/60 hover:text-cyan transition-colors"
                   >
                     Privacy Policy
                   </Link>
@@ -132,7 +132,7 @@ export function Footer() {
                 <li>
                   <Link
                     href="/terms"
-                    className="text-xs text-white/40 hover:text-cyan transition-colors"
+                    className="text-xs text-white/60 hover:text-cyan transition-colors"
                   >
                     Terms of Service
                   </Link>
@@ -146,10 +146,10 @@ export function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="container-custom py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-white/60">
             © {currentYear} {SITE_CONFIG.fullName}. All rights reserved.
           </p>
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-white/60">
             Serving the Greater Toronto Area with pride.
           </p>
         </div>
