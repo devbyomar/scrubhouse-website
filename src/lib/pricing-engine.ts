@@ -143,23 +143,21 @@ export const ADD_ONS: AddOnItem[] = [
   { id: "dishes", label: "Dishes", price: 20, estimatedTime: 0.3 },
   { id: "extra-bathroom", label: "Extra Bathroom", price: 45, estimatedTime: 0.5 },
   { id: "basement", label: "Basement Cleaning", price: 60, estimatedTime: 1.0 },
-  { id: "post-renovation", label: "Post-Renovation Heavy Duty", price: 150, estimatedTime: 2.0 },
   { id: "organizing", label: "Light Organization", price: 40, estimatedTime: 0.5 },
   { id: "cabinet-interior", label: "Inside Cabinets", price: 50, estimatedTime: 0.75 },
 ];
 
 /** Add-ons specific to commercial/office spaces */
 export const COMMERCIAL_ADD_ONS: AddOnItem[] = [
-  { id: "desk-sanitization", label: "Desk & Workstation Sanitization", price: 60, estimatedTime: 0.75 },
-  { id: "interior-windows", label: "Interior Window & Glass Cleaning", price: 50, estimatedTime: 0.75 },
-  { id: "carpet-spot-clean", label: "Carpet Spot Cleaning & Deodorizing", price: 75, estimatedTime: 1.0 },
-  { id: "kitchen-deep", label: "Kitchen / Breakroom Deep Clean", price: 55, estimatedTime: 0.75 },
-  { id: "floor-wax-buff", label: "Floor Waxing & Buffing", price: 100, estimatedTime: 1.5 },
-  { id: "high-touch-sanitize", label: "High-Touch Surface Sanitization", price: 40, estimatedTime: 0.5 },
-  { id: "restroom-restock", label: "Restroom Consumable Restocking", price: 35, estimatedTime: 0.3 },
-  { id: "post-construction", label: "Post-Construction Heavy Duty", price: 200, estimatedTime: 2.5 },
-  { id: "trash-recycling", label: "Trash & Recycling Removal", price: 30, estimatedTime: 0.3 },
-  { id: "furniture-moving", label: "Move & Clean Around Furniture", price: 50, estimatedTime: 0.5 },
+  { id: "comm-desk-sanitization", label: "Desk & Workstation Sanitization", price: 60, estimatedTime: 0.75 },
+  { id: "comm-interior-windows", label: "Interior Window & Glass Cleaning", price: 50, estimatedTime: 0.75 },
+  { id: "comm-carpet-spot-clean", label: "Carpet Spot Cleaning & Deodorizing", price: 75, estimatedTime: 1.0 },
+  { id: "comm-kitchen-deep", label: "Kitchen / Breakroom Deep Clean", price: 55, estimatedTime: 0.75 },
+  { id: "comm-floor-wax-buff", label: "Floor Waxing & Buffing", price: 100, estimatedTime: 1.5 },
+  { id: "comm-high-touch-sanitize", label: "High-Touch Surface Sanitization", price: 40, estimatedTime: 0.5 },
+  { id: "comm-restroom-restock", label: "Restroom Consumable Restocking", price: 35, estimatedTime: 0.3 },
+  { id: "comm-trash-recycling", label: "Trash & Recycling Removal", price: 30, estimatedTime: 0.3 },
+  { id: "comm-furniture-moving", label: "Move & Clean Around Furniture", price: 50, estimatedTime: 0.5 },
 ];
 
 // ============================================
