@@ -63,9 +63,8 @@ export default function TermsOfServicePage() {
               We stand behind the quality of our work. If you are not satisfied with any aspect of our cleaning service, please notify us within 24 hours of service completion. We will re-clean the specified area at no additional charge. This guarantee does not cover pre-existing damage, stains that require specialized treatment, or areas not included in the original service agreement.
             </p>
 
-            <h2 className="text-xl font-bold text-text-primary mt-8 mb-4">7. Liability and Insurance</h2>
+            <h2 className="text-xl font-bold text-text-primary mt-8 mb-4">7. Liability</h2>
             <ul className="list-disc pl-6 space-y-2 text-text-secondary mb-4">
-              <li>ScrubHouse maintains comprehensive liability insurance for all cleaning operations.</li>
               <li>Any damage claims must be reported within 24 hours of service completion.</li>
               <li>ScrubHouse is not liable for damage to items that are not properly secured, pre-existing damage, or normal wear and tear.</li>
               <li>Our liability is limited to the cost of repair or replacement of the damaged item, up to the value of the service provided.</li>

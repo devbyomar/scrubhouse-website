@@ -245,7 +245,7 @@ function ServicesFAQ() {
     { q: "Can I switch between packages?", a: "Absolutely! You can upgrade or change your package at any time. Just let us know before your next scheduled cleaning." },
     { q: "What's included in the eco-friendly upgrade?", a: "The eco-friendly upgrade replaces all standard cleaning products with non-toxic, biodegradable alternatives. Same thorough cleaning — gentler on the environment." },
     { q: "How long does a typical cleaning take?", a: "Duration depends on your property size and package. A standard clean for a 2-bedroom apartment typically takes 2-3 hours. Deep cleans and larger properties take longer." },
-    { q: "Do I need to be home during the cleaning?", a: "Not at all. Many of our clients provide access instructions and we clean while they're out. Your home is fully insured during our visit." },
+    { q: "Do I need to be home during the cleaning?", a: "Not at all. Many of our clients provide access instructions and we clean while they're out. Your belongings are treated with the utmost care." },
     { q: "Can I customize my cleaning checklist?", a: "Yes! While our packages cover specific tasks, we're happy to accommodate special requests or focus areas. Just let us know in the notes when booking." },
   ];
 

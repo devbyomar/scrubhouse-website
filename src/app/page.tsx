@@ -119,8 +119,8 @@ function ValueProposition() {
   const values = [
     {
       icon: Shield,
-      title: "Trusted & Insured",
-      description: "Fully vetted, background-checked professionals. Your home is in safe hands.",
+      title: "Trusted & Reliable",
+      description: "Carefully selected, trained professionals. Your home is in safe hands.",
     },
     {
       icon: Award,
@@ -297,7 +297,7 @@ function PackagesPreview() {
 
 function WhyChooseUs() {
   const reasons = [
-    { icon: Shield, title: "Fully Insured & Bonded", description: "Complete peace of mind with comprehensive liability coverage on every job." },
+    { icon: Shield, title: "Trusted Professionals", description: "Every team member is carefully selected and trained so you can trust us in your space." },
     { icon: ThumbsUp, title: "100% Satisfaction Guarantee", description: "Not happy? We'll re-clean at no extra cost. Your satisfaction is non-negotiable." },
     { icon: Clock, title: "Punctual & Reliable", description: "We show up on time, every time. Consistency you can count on." },
     { icon: Star, title: "5-Star Rated Service", description: "Hundreds of happy clients trust us with their homes and businesses." },
