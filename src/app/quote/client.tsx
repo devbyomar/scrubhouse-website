@@ -35,6 +35,7 @@ import { formatCurrency } from "@/lib/utils";
 import {
   calculateQuote,
   ADD_ONS,
+  COMMERCIAL_ADD_ONS,
   TRAVEL_FEES,
   type QuoteInput,
   type QuoteResult,
@@ -82,6 +83,16 @@ const AREAS = Object.keys(TRAVEL_FEES).map((key) => ({
   label: key.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
 }));
 
+const COMMERCIAL_COMMON_AREAS = [
+  { id: "reception", label: "Reception Area" },
+  { id: "boardroom", label: "Boardroom / Conference Room" },
+  { id: "kitchen", label: "Kitchen / Breakroom" },
+  { id: "open-workspace", label: "Open Shared Workspace" },
+  { id: "server-room", label: "Server / Storage Room" },
+  { id: "lobby", label: "Lobby / Waiting Area" },
+  { id: "hallways", label: "Hallways / Corridors" },
+];
+
 // ============================================
 // QUOTE PAGE CLIENT
 // ============================================
@@ -93,6 +104,11 @@ export function QuotePageClient() {
     bedrooms: 2,
     bathrooms: 1,
     floors: 1,
+    squareFootage: 1000,
+    offices: 1,
+    washrooms: 1,
+    commonAreas: [],
+    hasStairs: false,
     serviceType: "",
     packageTier: "gold",
     frequency: "one-time",
@@ -129,6 +145,18 @@ export function QuotePageClient() {
       };
     });
   };
+
+  const toggleCommonArea = (id: string) => {
+    setFormData((prev) => {
+      const current = (prev.commonAreas as string[]) || [];
+      return {
+        ...prev,
+        commonAreas: current.includes(id) ? current.filter((a) => a !== id) : [...current, id],
+      };
+    });
+  };
+
+  const isCommercial = formData.propertyType === "office" || formData.propertyType === "commercial";
 
   const canAdvance = (): boolean => {
     switch (step) {
@@ -310,9 +338,9 @@ export function QuotePageClient() {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {step === 1 && <Step1Property formData={formData} updateField={updateField} />}
+                  {step === 1 && <Step1Property formData={formData} updateField={updateField} isCommercial={isCommercial} toggleCommonArea={toggleCommonArea} />}
                   {step === 2 && <Step2Service formData={formData} updateField={updateField} />}
-                  {step === 3 && <Step3Details formData={formData} updateField={updateField} toggleAddOn={toggleAddOn} />}
+                  {step === 3 && <Step3Details formData={formData} updateField={updateField} toggleAddOn={toggleAddOn} isCommercial={isCommercial} />}
                   {step === 4 && <Step4Location formData={formData} updateField={updateField} />}
                   {step === 5 && <Step5Contact formData={formData} updateField={updateField} />}
 
@@ -343,7 +371,7 @@ export function QuotePageClient() {
 // STEP COMPONENTS
 // ============================================
 
-function Step1Property({ formData, updateField }: { formData: Record<string, unknown>; updateField: (k: string, v: unknown) => void }) {
+function Step1Property({ formData, updateField, isCommercial, toggleCommonArea }: { formData: Record<string, unknown>; updateField: (k: string, v: unknown) => void; isCommercial: boolean; toggleCommonArea: (id: string) => void }) {
   return (
     <div>
       <h2 className="text-2xl font-bold text-text-primary mb-2">What type of property?</h2>
@@ -366,32 +394,106 @@ function Step1Property({ formData, updateField }: { formData: Record<string, unk
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {isCommercial ? (
+        /* ─── Commercial / Office Fields ─── */
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">Bedrooms</label>
-          <div className="flex items-center gap-3">
-            <button onClick={() => updateField("bedrooms", Math.max(0, (formData.bedrooms as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
-            <span className="text-lg font-bold w-8 text-center">{formData.bedrooms as number}</span>
-            <button onClick={() => updateField("bedrooms", Math.min(10, (formData.bedrooms as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-text-secondary mb-2">Approximate Square Footage</label>
+            <Input
+              type="number"
+              placeholder="e.g. 3500"
+              value={(formData.squareFootage as number) || ""}
+              onChange={(e) => updateField("squareFootage", Number(e.target.value) || 0)}
+              min={0}
+              max={100000}
+            />
+            <p className="text-xs text-text-muted mt-1">Enter the total area in sq. ft.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Private Offices / Rooms</label>
+              <div className="flex items-center gap-3">
+                <button onClick={() => updateField("offices", Math.max(0, (formData.offices as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
+                <span className="text-lg font-bold w-8 text-center">{formData.offices as number}</span>
+                <button onClick={() => updateField("offices", Math.min(50, (formData.offices as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Washrooms</label>
+              <div className="flex items-center gap-3">
+                <button onClick={() => updateField("washrooms", Math.max(0, (formData.washrooms as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
+                <span className="text-lg font-bold w-8 text-center">{formData.washrooms as number}</span>
+                <button onClick={() => updateField("washrooms", Math.min(20, (formData.washrooms as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+              </div>
+            </div>
+          </div>
+
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted mb-4">Common Areas (select all that apply)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-8">
+            {COMMERCIAL_COMMON_AREAS.map((area) => (
+              <button
+                key={area.id}
+                onClick={() => toggleCommonArea(area.id)}
+                className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
+                  (formData.commonAreas as string[])?.includes(area.id)
+                    ? "border-cyan bg-cyan/5"
+                    : "border-border hover:border-navy/20"
+                }`}
+              >
+                <div className={`h-4 w-4 rounded border flex items-center justify-center ${
+                  (formData.commonAreas as string[])?.includes(area.id) ? "bg-cyan border-cyan" : "border-border"
+                }`}>
+                  {(formData.commonAreas as string[])?.includes(area.id) && <CheckCircle2 className="h-3 w-3 text-white" />}
+                </div>
+                <span className="text-sm text-text-primary">{area.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div>
+            <button
+              onClick={() => updateField("hasStairs", !formData.hasStairs)}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all w-full ${
+                formData.hasStairs ? "border-cyan bg-cyan/5" : "border-border hover:border-navy/20"
+              }`}
+            >
+              <div className={`h-5 w-5 rounded border-2 flex items-center justify-center ${formData.hasStairs ? "bg-cyan border-cyan" : "border-border"}`}>
+                {formData.hasStairs ? <CheckCircle2 className="h-3.5 w-3.5 text-white" /> : null}
+              </div>
+              <span className="text-sm font-medium text-text-primary">Space includes stairs</span>
+            </button>
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">Bathrooms</label>
-          <div className="flex items-center gap-3">
-            <button onClick={() => updateField("bathrooms", Math.max(1, (formData.bathrooms as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
-            <span className="text-lg font-bold w-8 text-center">{formData.bathrooms as number}</span>
-            <button onClick={() => updateField("bathrooms", Math.min(10, (formData.bathrooms as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+      ) : (
+        /* ─── Residential Fields ─── */
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Bedrooms</label>
+            <div className="flex items-center gap-3">
+              <button onClick={() => updateField("bedrooms", Math.max(0, (formData.bedrooms as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
+              <span className="text-lg font-bold w-8 text-center">{formData.bedrooms as number}</span>
+              <button onClick={() => updateField("bedrooms", Math.min(10, (formData.bedrooms as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Bathrooms</label>
+            <div className="flex items-center gap-3">
+              <button onClick={() => updateField("bathrooms", Math.max(1, (formData.bathrooms as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
+              <span className="text-lg font-bold w-8 text-center">{formData.bathrooms as number}</span>
+              <button onClick={() => updateField("bathrooms", Math.min(10, (formData.bathrooms as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Floors / Levels</label>
+            <div className="flex items-center gap-3">
+              <button onClick={() => updateField("floors", Math.max(1, (formData.floors as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
+              <span className="text-lg font-bold w-8 text-center">{formData.floors as number}</span>
+              <button onClick={() => updateField("floors", Math.min(5, (formData.floors as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
+            </div>
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">Floors / Levels</label>
-          <div className="flex items-center gap-3">
-            <button onClick={() => updateField("floors", Math.max(1, (formData.floors as number) - 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">−</button>
-            <span className="text-lg font-bold w-8 text-center">{formData.floors as number}</span>
-            <button onClick={() => updateField("floors", Math.min(5, (formData.floors as number) + 1))} className="h-10 w-10 rounded-lg border border-border flex items-center justify-center hover:bg-surface-raised transition-colors text-lg">+</button>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -464,7 +566,19 @@ function Step2Service({ formData, updateField }: { formData: Record<string, unkn
   );
 }
 
-function Step3Details({ formData, updateField, toggleAddOn }: { formData: Record<string, unknown>; updateField: (k: string, v: unknown) => void; toggleAddOn: (id: string) => void }) {
+function Step3Details({ formData, updateField, toggleAddOn, isCommercial }: { formData: Record<string, unknown>; updateField: (k: string, v: unknown) => void; toggleAddOn: (id: string) => void; isCommercial: boolean }) {
+  const addOnList = isCommercial ? COMMERCIAL_ADD_ONS : ADD_ONS;
+  const additionalInfoItems = isCommercial
+    ? [
+        { key: "ecoFriendly", label: "Eco-Friendly Products", icon: Leaf },
+        { key: "clientProvidesSupplies", label: "We'll Provide Supplies", icon: Sparkles },
+      ]
+    : [
+        { key: "hasPets", label: "Pets in Home", icon: PawPrint },
+        { key: "ecoFriendly", label: "Eco-Friendly Products", icon: Leaf },
+        { key: "clientProvidesSupplies", label: "I'll Provide Supplies", icon: Sparkles },
+      ];
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-text-primary mb-2">Tell us more</h2>
@@ -490,11 +604,7 @@ function Step3Details({ formData, updateField, toggleAddOn }: { formData: Record
 
       <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted mb-4">Additional Info</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-        {[
-          { key: "hasPets", label: "Pets in Home", icon: PawPrint },
-          { key: "ecoFriendly", label: "Eco-Friendly Products", icon: Leaf },
-          { key: "clientProvidesSupplies", label: "I'll Provide Supplies", icon: Sparkles },
-        ].map((item) => (
+        {additionalInfoItems.map((item) => (
           <button
             key={item.key}
             onClick={() => updateField(item.key, !formData[item.key])}
@@ -511,9 +621,11 @@ function Step3Details({ formData, updateField, toggleAddOn }: { formData: Record
         ))}
       </div>
 
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted mb-4">Add-Ons</h3>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-text-muted mb-4">
+        {isCommercial ? "Commercial Add-Ons" : "Add-Ons"}
+      </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {ADD_ONS.map((addon) => (
+        {addOnList.map((addon) => (
           <button
             key={addon.id}
             onClick={() => toggleAddOn(addon.id)}
