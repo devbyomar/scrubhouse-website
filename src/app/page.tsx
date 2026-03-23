@@ -224,7 +224,7 @@ function ServicesOverview() {
                     ))}
                   </ul>
                   <Link href={service.href} className="inline-flex items-center gap-1 text-sm font-semibold text-navy hover:text-cyan transition-colors group/link">
-                    Learn More
+                    Explore {service.title}
                     <ChevronRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
                   </Link>
                 </CardContent>
