@@ -133,7 +133,15 @@ export function QuotePageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (key: string, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [key]: value };
+      // When property type changes, clear add-ons to prevent cross-contamination
+      // between residential and commercial add-on lists
+      if (key === "propertyType" && value !== prev.propertyType) {
+        next.addOns = [];
+      }
+      return next;
+    });
   };
 
   const toggleAddOn = (id: string) => {
