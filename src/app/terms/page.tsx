@@ -5,6 +5,9 @@ import { SITE_CONFIG } from "@/lib/config";
 export const metadata: Metadata = {
   title: "Terms of Service | ScrubHouse",
   description: "Read the terms and conditions governing the use of ScrubHouse cleaning services.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsOfServicePage() {

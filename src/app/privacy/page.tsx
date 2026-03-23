@@ -5,6 +5,9 @@ import { SITE_CONFIG } from "@/lib/config";
 export const metadata: Metadata = {
   title: "Privacy Policy | ScrubHouse",
   description: "Learn how ScrubHouse collects, uses, and protects your personal information.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPolicyPage() {
